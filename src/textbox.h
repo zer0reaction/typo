@@ -34,8 +34,9 @@ public:
     void set_cursor_color(sf::Color color);
     void set_cursor_thickness(int thickness);
     void draw_widget(sf::RenderWindow &window) override;
-      void show_cursor();
+    void show_cursor();
     void hide_cursor();
+    void center(int width, int height);
     
     textbox(std::string text, std::string font_path);
     textbox();

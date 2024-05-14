@@ -1,12 +1,13 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <string>
+
 #include "textbox.h"
 #include "word_list.h"
 
 
-#define MAIN_WINDOW_WIDTH 640
-#define MAIN_WINDOW_HEIGHT 480
+#define MAIN_WINDOW_WIDTH 1000
+#define MAIN_WINDOW_HEIGHT 800
 #define FONT_SIZE 50
 #define CHARACTER_SPACING 30
 
@@ -84,75 +85,103 @@ std::string merge(std::string input_text, std::string random_word) {
 int main (int argc, char *argv[]) {
 
     // Setting the window and all the widgets
-    sf::RenderWindow main_window(sf::VideoMode(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT), "Typo - learn to type better", sf::Style::Close);
+    sf::RenderWindow main_window(sf::VideoMode(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT), 
+            "Typo - learn to type better", sf::Style::Default);
+
+    // Widgets
     textbox main_textbox;
     word_list words("words/all.txt");
-    set_main_window_settings(main_window, main_textbox);
-    std::vector<int> typos(26, 0);
 
-    // Declaring stuff
+    // Misc variables to work with a textbox
     std::string input_text, random_word, merged, color_specification;
     int words_per_test = 1;
+
+    // To store user's typos
+    std::vector<int> typos(26, 0);
+
+
+    set_main_window_settings(main_window, main_textbox);
+
 
     // Lambda to replace the current word/s with new word/s
     auto new_word = [&]() {
         input_text = "";
         random_word = "";
 
+        // Getting word/s from our dictionaty and adding them to current string
         for(int i = 0; i < words_per_test; i++)
             if(i != words_per_test - 1)
                 random_word += words.get_random_word() + " ";
             else random_word += words.get_random_word();
 
+        // Setting the string for the textbox (to show the typos and the word to write)
         merged = merge(input_text, random_word);
         color_specification = std::string(random_word.length(), 'b');
-
-        main_textbox.set_position((MAIN_WINDOW_WIDTH - merged.length() * CHARACTER_SPACING) / 2.0, 
-                (MAIN_WINDOW_HEIGHT - FONT_SIZE) / 2);
     };
 
 
-    new_word();
-
-
-    // Loop of the app
-    sf::Event event;
-
-    while(main_window.isOpen()) {
-        while(main_window.pollEvent(event)) {
-
-            // If the user tries to close the window
-            if(event.type == sf::Event::Closed) main_window.close();
-
-            // If some text is entered
-            if(event.type == sf::Event::TextEntered) {
-                char letter_typed = event.text.unicode;
-
-                // If Backspace is pressed
-                if(letter_typed == 8) input_text = input_text.substr(0, input_text.length() - 1);
-
-                // If any other key is pressed (from a to z)
-                else if(letter_typed >= 97 && letter_typed <= 122) input_text += letter_typed;
-            }
-
-        }
-
-        // Changing stuff to represent current state of the input
+    // Processed every frame
+    auto update_iteration = [&]() {
+        // Making both the user input and the current random_word visible
         merged = merge(input_text, random_word);
+
+        // If there are no typos and the whole word is entered, we update the word to a new one
         if(check_spelling(input_text, random_word, color_specification) == 0 
                 && input_text.length() == random_word.length())
             new_word();
-        if(input_text.length() == 0) main_textbox.hide_cursor();
-        else main_textbox.show_cursor();
 
-        // Applying changes
+        // Hiding the cursor if there is no text typed
+        // if(input_text.length() == 0) main_textbox.hide_cursor();
+        // else main_textbox.show_cursor();
+
+        // Applying changes to the textbox
         main_textbox.set_text(merged, color_specification);
         main_textbox.set_cursor_position(input_text.length());
+        main_textbox.center(main_window.getSize().x, main_window.getSize().y);
 
         // Drawing and displaying all the widgets
         main_window.clear(sf::Color(50, 52, 55));
         main_textbox.draw_widget(main_window);
         main_window.display();
+    };
+
+
+    // Adding first word
+    new_word();
+
+    // Loop of the app
+    sf::Event event;
+    while(main_window.isOpen()) {
+
+        // While there are some events happening in the window
+        while(main_window.pollEvent(event)) {
+
+            // If the user tries to close the window, we close it
+            if(event.type == sf::Event::Closed) main_window.close();
+
+            // If some text is entered, we process it
+            if(event.type == sf::Event::TextEntered) {
+
+                // Getting the typed letter
+                char letter_typed = event.text.unicode;
+
+                // If Backspace is pressed, we delete the last character
+                if(letter_typed == 8) input_text = input_text.substr(0, input_text.length() - 1);
+
+                // If any other key is pressed (from a to z), we add it to the input line
+                // TODO: add programming stuff (){}[];:+-<> and numbers
+                else if(letter_typed >= 97 && letter_typed <= 122) input_text += letter_typed;
+            }
+
+            // If the window is resized, we update the view (for things not to stretch)
+            if(event.type == sf::Event::Resized) {
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                main_window.setView(sf::View(visibleArea));           
+            }
+        }
+
+        // Changing stuff to represent current state of the input
+        update_iteration();
     }
 
     

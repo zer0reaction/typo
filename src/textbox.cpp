@@ -82,6 +82,14 @@ void textbox::set_cursor_thickness(int thickness) {
 }
 
 
+void textbox::center(int width, int height) {
+    set_position(
+            (width - text.length() * font_size / 2.0) / 2.0, 
+            (height - font_size) / 2.0
+            );
+}
+
+
 textbox::textbox(std::string text, std::string font_path) {
     color_specification = std::string(text.length(), 'n');
     set_text(text, color_specification);
