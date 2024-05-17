@@ -78,8 +78,7 @@ void count_typos(std::string user_input, std::string random_word, std::vector<in
     for(int i = 0; i < user_input.length(); i++) {
         if(i == user_input.length() - 1) {
             if(i > random_word.length() - 1) {
-                typos[user_input[i] - 'a']++;
-                continue;
+                break;
             }
 
             if(user_input[i] != random_word[i]) { typos[random_word[i] - 'a']++; }
