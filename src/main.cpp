@@ -60,25 +60,31 @@ std::string merge(std::string input_text, std::string random_word) {
     std::string result;
 
     if(input_text.length() <= random_word.length()) {
-        for(int i = 0; i < input_text.length(); i++) {
-            result += input_text[i];
-        }
-        for(int i = input_text.length(); i < random_word.length(); i++) {
-            result += random_word[i];
-        }
+        for(int i = 0; i < input_text.length(); i++) { result += input_text[i]; }
+        for(int i = input_text.length(); i < random_word.length(); i++) { result += random_word[i]; }
     }
 
     else {
-        for(int i = 0; i < random_word.length(); i++) {
-            result += input_text[i];
-        }
-        for(int i = random_word.length(); i < input_text.length(); i++) {
-            result += input_text[i];
-        }
+        for(int i = 0; i < random_word.length(); i++) { result += input_text[i]; }
+        for(int i = random_word.length(); i < input_text.length(); i++) { result += input_text[i]; }
     }
 
-
     return result;
+}
+
+
+// Adding the current typos to a vector
+void count_typos(std::string user_input, std::string random_word, std::vector<int> &typos) {
+    for(int i = 0; i < user_input.length(); i++) {
+        if(i == user_input.length() - 1) {
+            if(i > random_word.length() - 1) {
+                typos[user_input[i] - 'a']++;
+                continue;
+            }
+
+            if(user_input[i] != random_word[i]) { typos[random_word[i] - 'a']++; }
+        }
+    }
 }
 
 
@@ -92,7 +98,7 @@ int main (int argc, char *argv[]) {
     textbox main_textbox;
     word_list words("words/all.txt");
 
-    // Misc variables to work with a textbox
+    // Variables to work with a textbox
     std::string input_text, random_word, merged, color_specification;
     int words_per_test = 1;
 
@@ -100,6 +106,7 @@ int main (int argc, char *argv[]) {
     std::vector<int> typos(26, 0);
 
 
+    // Setting window settings
     set_main_window_settings(main_window, main_textbox);
 
 
@@ -109,10 +116,11 @@ int main (int argc, char *argv[]) {
         random_word = "";
 
         // Getting word/s from our dictionaty and adding them to current string
-        for(int i = 0; i < words_per_test; i++)
-            if(i != words_per_test - 1)
-                random_word += words.get_random_word() + " ";
-            else random_word += words.get_random_word();
+        std::vector<word> w = words.get_best_for_typo(typos, words_per_test);
+        for(int i = 0; i < words_per_test; i++) {
+            if(i != words_per_test - 1) { random_word += w[i].s + " "; }
+            else random_word += w[i].s;
+        }
 
         // Setting the string for the textbox (to show the typos and the word to write)
         merged = merge(input_text, random_word);
@@ -131,8 +139,8 @@ int main (int argc, char *argv[]) {
             new_word();
 
         // Hiding the cursor if there is no text typed
-        // if(input_text.length() == 0) main_textbox.hide_cursor();
-        // else main_textbox.show_cursor();
+        if(input_text.length() == 0) main_textbox.hide_cursor();
+        else main_textbox.show_cursor();
 
         // Applying changes to the textbox
         main_textbox.set_text(merged, color_specification);
@@ -146,8 +154,10 @@ int main (int argc, char *argv[]) {
     };
 
 
+
     // Adding first word
     new_word();
+
 
     // Loop of the app
     sf::Event event;
@@ -166,7 +176,12 @@ int main (int argc, char *argv[]) {
                 char letter_typed = event.text.unicode;
 
                 // If Backspace is pressed, we delete the last character
-                if(letter_typed == 8) input_text = input_text.substr(0, input_text.length() - 1);
+                // And then counting the typos
+                // Basically checing if the deleted character is a typo
+                if(letter_typed == 8) {
+                    count_typos(input_text, random_word, typos);
+                    input_text = input_text.substr(0, input_text.length() - 1);
+                }
 
                 // If any other key is pressed (from a to z), we add it to the input line
                 // TODO: add programming stuff (){}[];:+-<> and numbers

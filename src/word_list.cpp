@@ -46,7 +46,18 @@ std::string word_list::get_random_word() {
 }
 
 
-std::vector<word> word_list::get_best_for_typo(char typo, int amount) {
+std::vector<word> word_list::get_best_for_typo(std::vector<int> &typos, int amount) {
+    // Picking the typo which user did the most
+    int index = 0;
+    int max_count = 0;
+
+    for(int i = 0; i < typos.size(); i++) {
+        if(typos[i] > max_count) {
+            index = i;
+            max_count = typos[i];
+        }
+    }
+
     // higher it is = more lag, but better results
     #define BATCH_SIZE 500
 
@@ -57,16 +68,27 @@ std::vector<word> word_list::get_best_for_typo(char typo, int amount) {
     int start = rand() % (words.size() - BATCH_SIZE);
     std::vector<word> sub = std::vector<word>(words.begin() + start, words.begin() + start + BATCH_SIZE);
 
-    // comparator magic
-    // we sort the all the words in the order of best for current typo
-    // this is not efficient and can cause lags, but i don't know how to make it better yet
-    auto comp = [&](word l, word r) {
-        return l.typo_coef[typo - 'a'] > r.typo_coef[typo - 'a'];
-    };
 
-    std::sort(sub.begin(), sub.end(), comp);
+    // If there are still no typos, we return a random word/s
+    if(max_count == 0) {
+        for(int i = 0; i < amount; i++) {
+            top.push_back(sub[random() % BATCH_SIZE]);
+        }
+    // If there are typos
+    } else {
+        // comparator magic
+        // we sort the all the words in the order of best for current typo
+        // this is not efficient and can cause lags, but i don't know how to make it better yet
+        auto comp = [&](word l, word r) {
+            return l.typo_coef[index] > r.typo_coef[index];
+        };
 
-    top = std::vector<word>(sub.begin(), sub.begin() + amount);
+        std::sort(sub.begin(), sub.end(), comp);
+
+        top = std::vector<word>(sub.begin(), sub.begin() + amount);
+
+        typos[index]--;
+    }
 
     return top;
 }

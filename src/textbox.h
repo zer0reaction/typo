@@ -28,6 +28,7 @@ private:
 
 public:
     void set_text(std::string text, std::string color_specification);
+    void set_text(std::string text);
     void set_font(std::string font_path, int font_size, int character_spacing);
     void set_position(int x, int y);
     void set_cursor_position(int position);

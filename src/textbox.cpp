@@ -51,6 +51,11 @@ void textbox::set_text(std::string text, std::string color_specification) {
     this -> color_specification = color_specification;
 }
 
+void textbox::set_text(std::string text) {
+    this -> text = text;
+    this -> color_specification = std::string(text.length(), 'n');
+}
+
 
 void textbox::set_position(int x, int y) {
     position_x = x;
