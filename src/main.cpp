@@ -88,6 +88,7 @@ void count_typos(std::string user_input, std::string random_word, std::vector<in
 
 
 int main (int argc, char *argv[]) {
+    // ----- SETTING UP THE WINDOW AND THE WIDGETS -----
 
     // Setting the window and all the widgets
     sf::RenderWindow main_window(sf::VideoMode(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT), 
@@ -104,10 +105,14 @@ int main (int argc, char *argv[]) {
     // To store user's typos
     std::vector<int> typos(26, 0);
 
-
     // Setting window settings
     set_main_window_settings(main_window, main_textbox);
 
+    // ----- END SETTING UP THE WINDOW AND THE WIDGETS -----
+
+
+
+    // ----- LAMBDAS -----
 
     // Lambda to replace the current word/s with new word/s
     auto new_word = [&]() {
@@ -153,6 +158,34 @@ int main (int argc, char *argv[]) {
     };
 
 
+    // Processes user input
+    auto text_input_processing = [&](sf::Event event) {
+        // Getting the typed letter
+        char letter_typed = event.text.unicode;
+
+        // If Backspace is pressed, we delete the last character
+        // And then counting the typos
+        // Basically checing if the deleted character is a typo
+        if(letter_typed == 8) {
+            count_typos(input_text, random_word, typos);
+            input_text = input_text.substr(0, input_text.length() - 1);
+        }
+
+        // If any other key is pressed (from a to z), we add it to the input line
+        // TODO: add programming stuff (){}[];:+-<> and numbers
+        else if(letter_typed >= 97 && letter_typed <= 122) input_text += letter_typed;
+    };
+
+
+    // Process window resize
+    auto window_resize_processing = [&](sf::Event event) {
+        sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+        main_window.setView(sf::View(visibleArea));           
+    };
+    
+    // ----- END LAMBDAS -----
+    // todo: probably put this in a separate file or smth
+
 
     // Adding first word
     new_word();
@@ -170,27 +203,12 @@ int main (int argc, char *argv[]) {
 
             // If some text is entered, we process it
             if(event.type == sf::Event::TextEntered) {
-
-                // Getting the typed letter
-                char letter_typed = event.text.unicode;
-
-                // If Backspace is pressed, we delete the last character
-                // And then counting the typos
-                // Basically checing if the deleted character is a typo
-                if(letter_typed == 8) {
-                    count_typos(input_text, random_word, typos);
-                    input_text = input_text.substr(0, input_text.length() - 1);
-                }
-
-                // If any other key is pressed (from a to z), we add it to the input line
-                // TODO: add programming stuff (){}[];:+-<> and numbers
-                else if(letter_typed >= 97 && letter_typed <= 122) input_text += letter_typed;
+                text_input_processing(event);
             }
 
             // If the window is resized, we update the view (for things not to stretch)
             if(event.type == sf::Event::Resized) {
-                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-                main_window.setView(sf::View(visibleArea));           
+                window_resize_processing(event);
             }
         }
 
@@ -198,6 +216,6 @@ int main (int argc, char *argv[]) {
         update_iteration();
     }
 
-    
+
     return 0;
 }
