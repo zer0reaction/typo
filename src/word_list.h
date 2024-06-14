@@ -1,25 +1,23 @@
 #pragma once
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <string>
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <random>
-
+#include <string>
+#include <vector>
 
 struct word {
     std::string s;
     std::vector<double> typo_coef;
 };
 
-
 class word_list {
-private:
+  private:
     std::vector<word> words;
 
-public:
+  public:
     word_list(std::string file_path);
 
     std::string get_random_word();

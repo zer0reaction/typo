@@ -1,13 +1,12 @@
 #pragma once
-#include <SFML/Graphics/Color.hpp>
-#include <vector>
-#include <string>
-#include <iostream>
 #include "widget.h"
-
+#include <SFML/Graphics/Color.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
 class textbox : public widget {
-private:
+  private:
     sf::Font font;
     sf::Color normal_color = sf::Color(209, 208, 197);
     sf::Color error_color = sf::Color(202, 71, 77);
@@ -26,7 +25,7 @@ private:
     std::string text = "";
     std::string color_specification = "";
 
-public:
+  public:
     void set_text(std::string text, std::string color_specification);
     void set_text(std::string text);
     void set_font(std::string font_path, int font_size, int character_spacing);
@@ -38,7 +37,7 @@ public:
     void show_cursor();
     void hide_cursor();
     void center(int width, int height);
-    
+
     textbox(std::string text, std::string font_path);
     textbox();
 };
