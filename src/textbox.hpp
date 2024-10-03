@@ -1,5 +1,5 @@
 #pragma once
-#include "widget.h"
+#include "widget.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <iostream>
 #include <string>

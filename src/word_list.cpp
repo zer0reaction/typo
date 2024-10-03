@@ -1,4 +1,4 @@
-#include "word_list.h"
+#include "word_list.hpp"
 #include <algorithm>
 
 word_list::word_list(std::string file_path) {

@@ -2,8 +2,9 @@
 #include <iostream>
 #include <string>
 
-#include "textbox.h"
-#include "word_list.h"
+#include "text.hpp"
+#include "textbox.hpp"
+#include "word_list.hpp"
 
 #define MAIN_WINDOW_WIDTH 1000
 #define MAIN_WINDOW_HEIGHT 800
@@ -18,82 +19,6 @@ void set_main_window_settings(sf::RenderWindow &main_window,
     main_textbox.set_font("fonts/hack.ttf", FONT_SIZE, CHARACTER_SPACING);
     main_textbox.set_cursor_position(0);
     main_textbox.set_cursor_thickness(2);
-}
-
-// Marks the errors in red
-int check_spelling(std::string &input_text, std::string &random_word,
-                   std::string &color_specification) {
-    color_specification = std::string(random_word.length(), 'b');
-    int errors_count = 0;
-
-    if (input_text.length() <= random_word.length()) {
-        for (int i = 0; i < input_text.length(); i++) {
-            if (input_text[i] == random_word[i])
-                color_specification[i] = 'n';
-            else {
-                color_specification[i] = 'e';
-                errors_count += 1;
-            }
-        }
-
-    } else {
-        for (int i = 0; i < random_word.length(); i++) {
-            if (input_text[i] == random_word[i])
-                color_specification[i] = 'n';
-            else {
-                color_specification[i] = 'e';
-                errors_count += 1;
-            }
-        }
-
-        for (int i = random_word.length(); i < input_text.length(); i++) {
-            color_specification += 'e';
-            errors_count += 1;
-        }
-    }
-
-    return errors_count;
-}
-
-// To combine two stings for output in a textbox: abc + asdwas = abcwas
-std::string merge(std::string input_text, std::string random_word) {
-    std::string result;
-
-    if (input_text.length() <= random_word.length()) {
-        for (int i = 0; i < input_text.length(); i++) {
-            result += input_text[i];
-        }
-        for (int i = input_text.length(); i < random_word.length(); i++) {
-            result += random_word[i];
-        }
-    }
-
-    else {
-        for (int i = 0; i < random_word.length(); i++) {
-            result += input_text[i];
-        }
-        for (int i = random_word.length(); i < input_text.length(); i++) {
-            result += input_text[i];
-        }
-    }
-
-    return result;
-}
-
-// Adding the current typos to a vector
-void count_typos(std::string user_input, std::string random_word,
-                 std::vector<int> &typos) {
-    for (int i = 0; i < user_input.length(); i++) {
-        if (i == user_input.length() - 1) {
-            if (i > random_word.length() - 1) {
-                break;
-            }
-
-            if (user_input[i] != random_word[i]) {
-                typos[random_word[i] - 'a']++;
-            }
-        }
-    }
 }
 
 int main(int argc, char *argv[]) {

@@ -1,4 +1,4 @@
-#include "textbox.h"
+#include "textbox.hpp"
 
 #define DEFAULT_FONT_PATH "fonts/hack.ttf"
 
